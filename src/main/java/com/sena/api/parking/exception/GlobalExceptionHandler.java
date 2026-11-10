@@ -9,19 +9,18 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
-import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.MethodArgumentBuilder;
 
-@RestController
+@RestControllerAdvice
 public class GlobalExceptionHandler {
 
-	@ExceptionHandler(ApiExeption.class)
+	@ExceptionHandler(ApiException.class)
 	public ResponseEntity<ErrorResponse> api(ApiException ex) {
 		return build(ex.getStatus(), ex.getMessage(), List.of());
 	}
 
-	@ExceptionHandler()
+	@ExceptionHandler(MethodArgumentNotValidException.class)
 	public ResponseEntity<ErrorResponse> validation(MethodArgumentNotValidException ex) {
 		List<String> detalles = ex.getBindingResult().getFieldErrors().stream()
 				.map(f -> f.getField() + ": " + f.getDefaultMessage()).toList();
@@ -36,10 +35,10 @@ public class GlobalExceptionHandler {
 
 	@ExceptionHandler(MethodArgumentTypeMismatchException.class)
 	public ResponseEntity<ErrorResponse> parametro(MethodArgumentTypeMismatchException ex) {
-		return build(HttpStatus.BAD_REQUEST, "Valor inavalido para el parametro '" + ex.getName() + "'", List.of());
+		return build(HttpStatus.BAD_REQUEST, "Valor invalido para el parametro '" + ex.getName() + "'", List.of());
 	}
 
-	@ExceptionHandler()
+	@ExceptionHandler(DataIntegrityViolationException.class)
 	public ResponseEntity<ErrorResponse> integridad(DataIntegrityViolationException ex) {
 		return build(HttpStatus.CONFLICT, "Operacion rechazada por integridad de datos", List.of());
 	}
@@ -48,4 +47,5 @@ public class GlobalExceptionHandler {
 		return ResponseEntity.status(s)
 				.body(new ErrorResponse(LocalDateTime.now(), s.value(), s.getReasonPhrase(), msg, det));
 	}
+
 }

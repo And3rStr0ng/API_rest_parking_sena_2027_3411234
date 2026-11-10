@@ -29,4 +29,5 @@ public class EspacioService {
 		EspacioParqueo e = EspacioParqueo.builder().numero(req.numero()).tipo(req.tipo()).build();
 		return EspacioResponse.de(espacioRepo.save(e));
 	}
+
 }
