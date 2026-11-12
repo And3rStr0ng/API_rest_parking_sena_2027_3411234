@@ -28,7 +28,9 @@ public interface RegistroParqueoRepository extends JpaRepository<RegistroParqueo
 	List<RegistroParqueo> findByFechaSalidaIsNotNullOrderByFechaEntradaDesc();
 
 	List<RegistroParqueo> findByVehiculoPlacaOrderByFechaEntradaDesc(String placa);
-
+	
+	List<RegistroParqueo> findAllByOrderByFechaEntradaDesc();
+	
 	@Lock(LockModeType.PESSIMISTIC_WRITE)
 	@Query("select r from RegistroParqueo r where r.id_registro = :id")
 	Optional<RegistroParqueo> bloquearPorId(@Param("id") Long id);

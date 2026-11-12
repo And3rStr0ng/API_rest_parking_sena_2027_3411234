@@ -18,10 +18,10 @@ public interface TarifaRepository extends JpaRepository<Tarifa, Long> {
 
 	@Query("select count(t) > 0 from Tarifa t where t.tipo = :tipo and t.vigenteHasta is null")
 	boolean existsByTipoAndVigenteHastaIsNull(@Param("tipo") TipoVehiculo tipo);
-
+	
 	Optional<Tarifa> findFirstByTipoAndVigenteHastaIsNull(TipoVehiculo tipo);
 
-	List<Tarifa> findAllByTipoAscVigenteDesdeDesc();
+	List<Tarifa> findAllByOrderByTipoAscVigenteDesdeDesc();
 
 	@Lock(LockModeType.PESSIMISTIC_WRITE)
 	@Query("select t from Tarifa t where t.tipo = :tipo and t.vigenteHasta is null")
@@ -29,5 +29,5 @@ public interface TarifaRepository extends JpaRepository<Tarifa, Long> {
 
 	@Query("select t from Tarifa t where t.tipo = :tipo and t.vigenteDesde <= :momento and (t.vigenteHasta is null or t.VigenteHasta > :momento) order by t.vigenteDesde desc")
 	List<Tarifa> VigentesEn(@Param("Tipo") TipoVehiculo tipo, @Param("momento") LocalDateTime momento);
-
+	
 }
