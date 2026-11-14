@@ -43,12 +43,12 @@ public class EspacioService {
 			throw ApiException.badRequest("'desde' no puede ser mayor que 'hasta'");
 		}
 		if (req.hasta() - req.desde() + 1 > MAX_LOTE) {
-			throw ApiException.badRequest("Maximo " + MAX_LOTE + " espacios por lote ");
+			throw ApiException.badRequest("Maximo " + MAX_LOTE + " espacios por lote");
 		}
 		List<EspacioParqueo> nuevos = new ArrayList<>();
 		for (int n = req.desde(); n <= req.hasta(); n++) {
 			if (espacioRepo.existsByNumero(n)) {
-				throw ApiException.conflict("Ya existe el espacio número " + n + " ;no se creo ninguno");
+				throw ApiException.conflict("Ya existe el espacio número " + n + "; no se creo ninguno");
 			}
 			nuevos.add(EspacioParqueo.builder().numero(n).tipo(req.tipo()).build());
 		}
@@ -62,6 +62,11 @@ public class EspacioService {
 				.map(EspacioResponse::de).toList();
 	}
 
+	@Transactional(readOnly = true)
+	public EspacioResponse obtener(Long id) {
+		return EspacioResponse.de(buscar(id));
+	}
+
 	@Transactional
 	public EspacioResponse actualizar(Long id, EspacioRequest req) {
 		EspacioParqueo e = buscar(id);
@@ -70,11 +75,9 @@ public class EspacioService {
 		}
 		if (!e.getNumero().equals(req.numero()) && espacioRepo.existsByNumero(req.numero())) {
 			throw ApiException.conflict("Ya existe el espacio número " + req.numero());
-
 		}
 		e.setNumero(req.numero());
 		e.setTipo(req.tipo());
-
 		return EspacioResponse.de(e);
 	}
 
@@ -82,7 +85,10 @@ public class EspacioService {
 	public void eliminar(Long id) {
 		EspacioParqueo e = buscar(id);
 		if (e.getEstado() == EstadoEspacio.OCUPADO) {
-			throw ApiException.conflict("El espacio tiene historial de registros y no se puede eliminar");
+			throw ApiException.conflict("No se puede eliminar un espacio ocupado");
+		}
+		if (registroRepo.existsByEspacio(e)) {
+			throw ApiException.conflict("El espacio tiene historial de registros y no puede eliminarse");
 		}
 		espacioRepo.delete(e);
 	}
@@ -90,4 +96,5 @@ public class EspacioService {
 	private EspacioParqueo buscar(Long id) {
 		return espacioRepo.findById(id).orElseThrow(() -> ApiException.notFound("Espacio " + id + " no encontrado"));
 	}
+
 }

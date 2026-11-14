@@ -6,7 +6,6 @@ import org.springframework.stereotype.Component;
 
 import com.sena.api.parking.model.Tarifa;
 import com.sena.api.parking.model.TipoVehiculo;
-import com.sena.api.parking.repository.EspacioParqueoRepository;
 import com.sena.api.parking.repository.TarifaRepository;
 
 import lombok.RequiredArgsConstructor;
